@@ -1,2 +1,2 @@
-KitchenBeats - Reactive accent lighting
-====================
+AmbientBeatsHeadboard - Reactive accent lighting for the headboard
+====================================================================
