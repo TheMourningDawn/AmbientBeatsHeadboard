@@ -23,7 +23,7 @@ void setup() {
 void loop() {
   if(animations->poweredOn) {
     animations->runAnimation();
-    strip->show();
+    animations->show();
     delay(speed);
   }
 }

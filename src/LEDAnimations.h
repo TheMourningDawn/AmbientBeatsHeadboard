@@ -15,7 +15,9 @@ public:
     Adafruit_NeoPixel *strip;
 
     bool audioReactiveOn = false;
+    int speed = 30;
 
+    void show();
     int runAnimation();
     int toggleAudioReactive();
 
@@ -23,20 +25,19 @@ public:
 
     void clearAllLeds();
     void fillColor();
+    void fillColor(uint32_t c);
 
-    // Static animations
+    // "Static" animations
     uint32_t Wheel(byte WheelPos);
-    void colorAll();
-    void colorAll(uint32_t c);
     void colorWipe();
     void colorWipeWallReflection();
     void colorWipe(uint32_t c, uint8_t wait);
     void pulseWhite(uint8_t wait);
     void fullWhite();
     void rainbow();
-    void rainbow(uint8_t wait);
+//    void rainbow(uint8_t wait);
     void rainbowCycle();
-    void rainbowCycle(uint8_t wait);
+//    void rainbowCycle(uint8_t wait);
 
     // Audio reactive animations
     void waterfall();

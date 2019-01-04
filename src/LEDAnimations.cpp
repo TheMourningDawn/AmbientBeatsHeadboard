@@ -9,11 +9,10 @@
 typedef void (LEDAnimations::*AnimationList)();
 
 //TODO: Right now these are all the blocking animations, and a blank, because
-AnimationList animationsAudioReactive[] = {&LEDAnimations::clearAllLeds,
-  &LEDAnimations::colorWipe, &LEDAnimations::rainbowCycle, &LEDAnimations::rainbow};
+AnimationList animationsAudioReactive[] = {};
 
-AnimationList animationsRails[] = {&LEDAnimations::colorWipeWallReflection,
-  &LEDAnimations::fillColor, &LEDAnimations::colorAll, &LEDAnimations::fullWhite};
+AnimationList animationsRails[] = {&LEDAnimations::fullWhite, &LEDAnimations::colorWipeWallReflection,
+  &LEDAnimations::fillColor, &LEDAnimations::colorWipe, &LEDAnimations::rainbowCycle, &LEDAnimations::rainbow };
 
 int gamma[] = {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -41,6 +40,10 @@ LEDAnimations::LEDAnimations(SpectrumEqualizerClient *eq, Adafruit_NeoPixel *neo
     animationCount = ARRAY_SIZE(animationsRails);
 }
 
+void LEDAnimations::show() {
+    strip->show();
+}
+
 int LEDAnimations::runAnimation() {
     equalizer->readAudioFrequencies();
     if (audioReactiveOn) {
@@ -65,18 +68,13 @@ int LEDAnimations::toggleAudioReactive() {
 
 void LEDAnimations::setBrightness(int newBrightness) {
     AmbientBeatsLEDAnimations::setBrightness(newBrightness);
-    strip->show();
+    strip->setBrightness(brightness);
+    show();
 }
 
 void LEDAnimations::clearAllLeds() {
     for(int i=0;i<strip->numPixels();i++) {
         strip->setPixelColor(i, strip->Color(0,0,0));
-    }
-    strip->show();
-}
-void LEDAnimations::fillColor() {
-    for(int i=0;i<strip->numPixels();i++) {
-       strip->setPixelColor(i, Wheel(hue));
     }
 }
 
@@ -95,17 +93,15 @@ uint32_t LEDAnimations::Wheel(byte WheelPos) {
     return strip->Color(WheelPos * 3, 255 - WheelPos * 3, 0,0);
 }
 
-void LEDAnimations::colorAll() {
+void LEDAnimations::fillColor() {
     uint32_t color = Wheel(hue);
-    // strip->setBrightness(brightness);
     if (color != previousColor) {
         previousColor = color;
-        colorAll(color);
+        fillColor(color);
     }
 }
 
-void LEDAnimations::colorAll(uint32_t c) {
-    // strip->setBrightness(brightness);
+void LEDAnimations::fillColor(uint32_t c) {
     for(int i=0; i<strip->numPixels(); i++) {
         strip->setPixelColor(i, c);
     }
@@ -128,8 +124,7 @@ void LEDAnimations::colorWipeWallReflection() {
 void LEDAnimations::colorWipe(uint32_t c, uint8_t wait) {
     pixelIndex = wrapToRange(pixelIndex, 0, strip->numPixels() - 1);
     strip->setPixelColor(pixelIndex, c);
-    // strip->setBrightness(brightness);
-    strip->show();
+//    strip->show();
     pixelIndex++;
 }
 
@@ -154,44 +149,26 @@ void LEDAnimations::pulseWhite(uint8_t wait) {
 void LEDAnimations::fullWhite() {
     for(uint16_t i=0; i<strip->numPixels(); i++) {
         strip->setPixelColor(i, strip->Color(0, 0, 0, gamma[hue]));
-        // strip->setBrightness(brightness);
     }
     strip->show();
 }
 
 void LEDAnimations::rainbow() {
-    rainbow(100);
-}
-
-void LEDAnimations::rainbow(uint8_t wait) {
-    uint16_t i, j;
-
-    for(j=0; j<256; j++) {
-        // strip->setBrightness(brightness);
-        for(i=0; i<strip->numPixels(); i++) {
-            strip->setPixelColor(i, Wheel((i+j) & 255));
-        }
-        strip->show();
-        delay(wait);
+    static uint16_t j=0;
+    for(int i=0; i<strip->numPixels(); i++) {
+        strip->setPixelColor(i, Wheel((i+j) & 255));
     }
+    j++;
+    if(j >= 256) j=0;
 }
 
 void LEDAnimations::rainbowCycle() {
-    rainbowCycle(20);
-}
-
-// Slightly different, this makes the rainbow equally distributed throughout, then wait (ms)
-void LEDAnimations::rainbowCycle(uint8_t wait) {
-    uint16_t i, j;
-
-    for(j=0; j<256; j++) { // 1 cycle of all colors on wheel
-        // strip->setBrightness(brightness);
-        for(i=0; i< strip->numPixels(); i++) {
-            strip->setPixelColor(i, Wheel(((i * 256 / strip->numPixels()) + j) & 255));
-        }
-        strip->show();
-        delay(wait);
+    static uint16_t j=0;
+    for(int i=0; i< strip->numPixels(); i++) {
+        strip->setPixelColor(i, Wheel(((i * 256 / strip->numPixels()) + j) & 255));
     }
+    j++;
+    if(j >= 256*5) j=0;
 }
 
 /************************************
